@@ -65,5 +65,9 @@ RUN mkdir -p /home/${USERNAME}/.cache/huggingface && \
 # Switch to the non-root user
 USER ${USERNAME}
 
+# Initialize conda for the user
+RUN conda init bash && \
+    echo "conda activate ${ENV_NAME}" >> /home/${USERNAME}/.bashrc
+
 # Set default command
 CMD ["/bin/bash"] 
