@@ -2,15 +2,19 @@
 
 services:
   rllm:
+    container_name: rllm
     build:
       context: .
       dockerfile: Dockerfile
       args:
         ENV_NAME: rllm
         PYTHON_VERSION: 3.11
+        USERNAME: daniel
+        USER_ID: 1001
+        GROUP_ID: 1001
     volumes:
-      - .:/workspace/rllm/  # Mount current directory to /workspace/open-r1/
-      - ~/.cache/huggingface/:/root/.cache/huggingface/
+      - .:/workspace/rllm/  # Mount current directory to /workspace/rllm/
+      - ~/.cache/huggingface/:/home/daniel/.cache/huggingface/
     environment:
       - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
       - WANDB_API_KEY=${WANDB_API_KEY}
