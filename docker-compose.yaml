@@ -14,7 +14,8 @@ services:
         GROUP_ID: 1001
     volumes:
       - .:/workspace/rllm/  # Mount current directory to /workspace/rllm/
-      - ~/.cache/huggingface/:/home/daniel/.cache/huggingface/
+      - .:/root/rllm/  # Mount for data paths expected by scripts
+      - ~/.cache/huggingface/:/root/.cache/huggingface/
     environment:
       - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
       - WANDB_API_KEY=${WANDB_API_KEY}
