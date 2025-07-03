@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # Docker-in-Docker service for running SWE environments
+  dind:
+    image: docker:dind
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    volumes:
+      - docker-certs:/certs
+      - docker-data:/var/lib/docker
+      - ./swe-images:/swe-images
+    networks:
+      - swe-network
+    command: ["--storage-driver", "overlay2"]
+
+  # Redis for task coordination
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - swe-network
+    volumes:
+      - redis-data:/data
+
+  # MinIO for artifact storage (alternative to HDFS)
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio-data:/data
+    networks:
+      - swe-network
+    command: server /data --console-address ":9001"
+
+  # Ray head node
+  ray-head:
+    image: rayproject/ray:2.9.0-py310-gpu
+    container_name: ray-head
+    ports:
+      - "8265:8265"
+      - "10001:10001"
+    environment:
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=10001
+      - DOCKER_HOST=tcp://dind:2375
+    volumes:
+      - ./rllm:/workspace/rllm
+      - ./data:/workspace/data
+      - ./checkpoints:/workspace/checkpoints
+    networks:
+      - swe-network
+    command: >
+      bash -c "ray start --head --port=10001 --dashboard-host=0.0.0.0 --block"
+
+  # VLLM server for model serving
+  vllm-server:
+    image: vllm/vllm-openai:latest
+    runtime: nvidia
+    environment:
+      - CUDA_VISIBLE_DEVICES=0,1
+      - MAX_CONTEXT_LEN=16384
+      - TENSOR_PARALLEL_SIZE=2
+    ports:
+      - "30000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    networks:
+      - swe-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 2
+              capabilities: [gpu]
+    command: >
+      python -m vllm.entrypoints.openai.api_server
+      --model Qwen/Qwen3-8B
+      --tensor-parallel-size 2
+      --max-model-len 16384
+      --gpu-memory-utilization 0.8
+
+networks:
+  swe-network:
+    driver: bridge
+
+volumes:
+  docker-certs:
+  docker-data:
+  redis-data:
+  minio-data:
