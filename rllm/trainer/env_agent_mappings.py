@@ -26,6 +26,7 @@ AGENT_CLASSES = {
     "sweagent": safe_import("rllm.agents.swe_agent", "SWEAgent"),
     "math_agent": safe_import("rllm.agents.math_agent", "MathAgent"),
     "code_agent": safe_import("rllm.agents.code_agent", "CompetitionCodingAgent"),
+    "oracle_agent": safe_import("rllm.agents.oracle_agent", "OracleAgent"),
 }
 
 # Filter out None values for unavailable imports

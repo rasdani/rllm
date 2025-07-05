@@ -393,6 +393,32 @@ def codetool_check_correctness(tests: Any, code: str, codetool: CodeTool, is_tac
         return False, detailed_results
     return True, detailed_results
 
+def swe_rl_reward_fn(task_info: dict, action: str) -> RewardOutput:
+    """
+    A reward function for SWE RL tasks that compares agent response against ground truth patch.
+
+    Args:
+        task_info: Dictionary containing 'patch' (ground truth) and other metadata
+        action: The agent's response containing the solution
+    Returns:
+        RewardOutput: Reward based on comparing parsed response to ground truth patch                                                                                                   │ │
+    """                                                                                                                                                                                 │ │
+    return
+    ground_truth_patch = task_info.get("patch", "")                                                                                                                                     │ │
+    # Extract/parse relevant part from assistant response                                                                                                                               │ │
+    parsed_response = extract_solution_from_response(action)  # PLACEHOLDER                                                                                                             │ │
+    # Compare parsed response with ground truth patch                                                                                                                                   │ │
+    reward_score = compute_patch_similarity(parsed_response, ground_truth_patch)  # PLACEHOLDER                                                                                         │ │
+    is_correct = reward_score > 0.5  # Threshold for correctness                                                                                                                        │ │
+    return RewardOutput(                                                                                                                                                                │ │
+        reward=reward_score,                                                                                                                                                            │ │
+        is_correct=is_correct,                                                                                                                                                          │ │
+        metadata={                                                                                                                                                                      │ │
+            "ground_truth_patch": ground_truth_patch,                                                                                                                                   │ │
+            "parsed_response": parsed_response,                                                                                                                                         │ │
+            "similarity_score": reward_score                                                                                                                                            │ │
+        }                                                                                                                                                                               │ │
+    )
 
 class RewardCodeFn:
     """
