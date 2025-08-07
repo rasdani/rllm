@@ -6,6 +6,7 @@ from typing import Any
 import pandas as pd
 import polars as pl
 import torch
+from datasets import Dataset as HFDataset
 
 logger = logging.getLogger(__name__)
 
@@ -176,25 +177,20 @@ class DatasetRegistry:
         dataset_dir = os.path.join(cls._DATASET_DIR, name)
         os.makedirs(dataset_dir, exist_ok=True)
 
-        # Convert HuggingFace dataset to list of dictionaries if needed
-        if hasattr(data, "to_pandas") and callable(data.to_pandas):
-            # This is likely a HuggingFace dataset
-            data_df = data.to_pandas()
-            data_list = data_df.to_dict("records")
+        # Normalize to list of dictionaries
+        if hasattr(data, "to_pandas") and callable(getattr(data, "to_pandas")):
+            data_list = data.to_pandas().to_dict("records")  # type: ignore[attr-defined]
         else:
-            # Assume it's already a list of dictionaries
             data_list = data
-            data_df = pd.DataFrame(data_list)
 
-        # Save original data
+        # Save original data using Arrow-backed datasets to preserve nested types
         dataset_path = os.path.join(dataset_dir, f"{split}.parquet")
-        data_df.to_parquet(dataset_path)
+        HFDataset.from_list(data_list).to_parquet(dataset_path)
 
-        # Apply Verl postprocessing and save
+        # Apply Verl postprocessing and save using Arrow as well
         verl_data = cls.apply_verl_postprocessing(data_list)
         verl_dataset_path = os.path.join(dataset_dir, f"{split}_verl.parquet")
-        verl_data_df = pd.DataFrame(verl_data)
-        verl_data_df.to_parquet(verl_dataset_path)
+        HFDataset.from_list(verl_data).to_parquet(verl_dataset_path)
 
         # Update registry
         registry = cls._load_registry()
