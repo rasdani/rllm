@@ -22,7 +22,6 @@ dependencies = [
     "torch>=2.7",
     "transformers",
     "accelerate",
-    "flash-attn>=2.8.0.post2",
     "sentence-transformers",
     "torchmetrics",
 
@@ -34,6 +33,8 @@ dependencies = [
     "sglang-router",
     "peft",
     "torchao",
+    "verl",
+    "tensordict>=0.9.0",
 
     # Data processing
     "datasets",
@@ -86,6 +87,18 @@ dependencies = [
     "mkdocstrings[python]>=0.24.0",
     "mkdocs-autorefs>=0.5.0",
     "pymdown-extensions>=10.0.0",
+]
+
+[project.optional-dependencies]
+# Install with: `uv sync --extra build`
+build = [
+    "setuptools",
+    "packaging",
+]
+
+# Install with: `uv sync --extra build --extra compile`
+compile = [
+    "flash-attn>=2.8.0.post2",
 ]
 
 [tool.ruff]
@@ -144,3 +157,14 @@ exclude = [
     "tests/.*",
     "docs/.*",
 ]
+
+[tool.uv]
+no-build-isolation-package = ["flash-attn"]
+
+[tool.uv.sources]
+verl = { path = "verl", editable = true }
+
+[[tool.uv.dependency-metadata]]
+name = "flash-attn"
+version = "2.8.0.post2"
+requires-dist = ["torch", "einops"]
