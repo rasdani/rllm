@@ -1,0 +1,8 @@
+{
+  "R2E_Gym_Subset": {
+    "train": "/home/ubuntu/rllm/rllm/data/datasets/R2E_Gym_Subset/train.parquet"
+  },
+  "R2E_Gym_Lite": {
+    "train": "/home/ubuntu/rllm/rllm/data/datasets/R2E_Gym_Lite/train.parquet"
+  }
+}
