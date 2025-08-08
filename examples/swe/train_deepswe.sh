@@ -12,12 +12,15 @@ ray stop --force
 RLLM_DIR=$(python3 -c "import rllm; import os; print(os.path.dirname(os.path.dirname(rllm.__file__)))")
 
 MODEL_PATH=Qwen/Qwen3-1.7B
+# MODEL_PATH=Qwen/Qwen3-8B
+# MODEL_PATH=Qwen/Qwen3-4B
 
 N_GPUS_PER_NODE=1
 N_NODES=1
 TRAIN_BS=2
 VAL_BS=2
-MAX_RESPONSE_LENGTH=8192
+# MAX_RESPONSE_LENGTH=8192
+MAX_RESPONSE_LENGTH=16384
 
 TRAIN_DATASET=/home/ubuntu/rllm/rllm/data/datasets/R2E_Gym_Subset/train_verl.parquet
 VAL_DATASET=/home/ubuntu/rllm/rllm/data/datasets/R2E_Gym_Subset/train_verl.parquet
