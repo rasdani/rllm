@@ -52,6 +52,9 @@ dependencies = [
     "selenium",
     "browsergym",
     "firecrawl",
+  # API service
+  "fastapi",
+  "uvicorn[standard]",
 
     # Math and science
     "latex2sympy2",
